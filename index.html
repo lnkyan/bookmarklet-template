@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>书签栏工具</title>
+    <script src="https://unpkg.com/vue@3"></script>
+</head>
+
+<body>
+<div id="app">
+    <p>
+        <a :href="bookmarkHref" v-text="bookmarkName"></a>
+    </p>
+    <ol>
+        <li v-for="item of usage" v-text="item"></li>
+    </ol>
+</div>
+
+<script>
+  window.__isInGuidePage__ = true
+  window.setGuidePageConfig = (config) => {
+    Vue.createApp({
+      data() {
+        return {
+          // 书签的名字
+          bookmarkName: config.bookmarkName,
+          // 注入过脚本后，再次点击书签，需要运行的函数
+          injectFunctionName: config.injectFunctionName,
+          // 使用说明
+          usage: config.usage,
+        }
+      },
+      computed: {
+        bookmarkHref() {
+          const scriptUrl = location.href.replace(/(\/[^/]+.html$|\/$|$)/, '/frame.js')
+          return `javascript:(function(){if(window.${this.injectFunctionName}){${this.injectFunctionName}()}else{s=document.createElement('script');s.src='${scriptUrl}';document.head.appendChild(s)}})();void(0)`
+        },
+      },
+    }).mount('#app')
+  }
+</script>
+<script src="frame.js"></script>
+</body>
+
+</html>
