@@ -7,8 +7,8 @@
 
   // 定义frame对象
   window.bookmarklet = {
-    // inject脚本的运行次数
-    runTimes: 0,
+    // 小书签的点击次数
+    clickTimes: 0,
     /**
      * 初始化小书签配置页
      * @param {object} guidePageConfig
@@ -18,18 +18,18 @@
     setConfig(guidePageConfig) {
       if (window.__isInGuidePage__) {
         // 在guide页面加载时，注入配置
-        const config = Object.assign({}, guidePageConfig, {injectFunctionName:INJECT_FUNC_NAME})
+        const config = Object.assign({}, guidePageConfig, {injectFunctionName: INJECT_FUNC_NAME})
         window.setGuidePageConfig(config)
       }
     },
     /**
      * 设置点击小书签时要运行的函数
-     * @param {Function} runFunction 注入脚本中的运行函数主体
+     * @param {Function} handler 注入脚本中的运行函数主体
      */
-    async setRunnable(runFunction) {
+    setClickHandler(handler) {
       if (!window.__isInGuidePage__) {
         const fn = () => {
-          runFunction(++this.runTimes)
+          handler(++this.clickTimes)
         }
         window[INJECT_FUNC_NAME] = fn
 
@@ -41,9 +41,12 @@
     tools: {
       insertScript,
     },
+    async loadTools() {
+      await insertScript('frame_tools', 'frame_tools.js', true)
+      return this.tools
+    },
   }
   // 加载注入脚本
-  await insertScript('frame_tools', 'frame_tools.js', true)
   await insertScript('inject_script', 'index.js', true)
 
   /**
